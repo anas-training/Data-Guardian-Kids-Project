@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beneficiary Achievement Dashboard 2024</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0e27;
+            --bg-secondary: #151932;
+            --bg-card: rgba(26, 32, 53, 0.9);
+            --text-primary: #e0e6ed;
+            --text-secondary: #8892b0;
+            --accent-blue: #64ffda;
+            --accent-purple: #bd93f9;
+            --accent-pink: #ff79c6;
+            --accent-green: #50fa7b;
+            --accent-yellow: #f1fa8c;
+            --accent-orange: #ffb86c;
+            --success: #50fa7b;
+            --warning: #f1fa8c;
+            --danger: #ff5555;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0e27 0%, #151932 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .code-rain {
+            position: absolute;
+            color: var(--accent-blue);
+            font-size: 14px;
+            animation: fall linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-100vh);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Terminal-style header */
+        .terminal-header {
+            background: var(--bg-card);
+            border: 2px solid var(--accent-blue);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 0 30px rgba(100, 255, 218, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .terminal-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .dot-red { background: #ff5555; }
+        .dot-yellow { background: #f1fa8c; }
+        .dot-green { background: #50fa7b; }
+
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(100, 255, 218, 0.5); }
+            to { text-shadow: 0 0 20px rgba(189, 147, 249, 0.5); }
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            border-radius: 10px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-blue);
+            box-shadow: 0 10px 30px rgba(100, 255, 218, 0.2);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
+            animation: scan 3s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stat-title {
+            font-size: 1.2rem;
+            color: var(--accent-purple);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .gender-icon {
+            font-size: 1.5rem;
+        }
+
+        .achievement-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .overachieved {
+            background: rgba(80, 250, 123, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .underachieved {
+            background: rgba(255, 85, 85, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .on-target {
+            background: rgba(241, 250, 140, 0.2);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
+        .stat-numbers {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .number-block {
+            text-align: center;
+        }
+
+        .number-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .number-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent-blue);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            animation: shimmer 2s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        .percentage {
+            text-align: right;
+            color: var(--accent-blue);
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .breakdown {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .breakdown-title {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.25rem 0;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .breakdown-item span:first-child {
+            color: var(--accent-yellow);
+        }
+
+        /* Summary Section */
+        .summary-section {
+            background: var(--bg-card);
+            border: 2px solid var(--accent-purple);
+            border-radius: 10px;
+            padding: 2rem;
+            margin-top: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .summary-title {
+            font-size: 1.8rem;
+            color: var(--accent-purple);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .total-reached {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .total-number {
+            font-size: 4rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple), var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .total-label {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        .insights {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 3px solid var(--accent-blue);
+            padding: 1rem;
+            margin-top: 1.5rem;
+            border-radius: 5px;
+        }
+
+        .insight-title {
+            color: var(--accent-blue);
+            font-size: 1.2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .insight-text {
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+
+        .highlight {
+            color: var(--accent-yellow);
+            font-weight: bold;
+        }
+
+        /* Chart container */
+        .chart-container {
+            background: var(--bg-card);
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            height: 400px;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        /* GitHub link */
+        .github-link {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--bg-card);
+            border: 2px solid var(--accent-blue);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--accent-blue);
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(100, 255, 218, 0.3);
+        }
+
+        .github-link:hover {
+            transform: scale(1.1) rotate(360deg);
+            box-shadow: 0 0 30px rgba(100, 255, 218, 0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8rem; }
+            .container { padding: 1rem; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .total-number { font-size: 3rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated background -->
+    <div class="bg-animation" id="bgAnimation"></div>
+
+    <div class="container">
+        <!-- Terminal Header -->
+        <div class="terminal-header">
+            <div class="terminal-bar">
+                <span class="terminal-dot dot-red"></span>
+                <span class="terminal-dot dot-yellow"></span>
+                <span class="terminal-dot dot-green"></span>
+            </div>
+            <h1>// BENEFICIARY ACHIEVEMENT DASHBOARD</h1>
+            <p class="subtitle">Performance Metrics & Target Analysis</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <!-- Women Card -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">
+                        <span class="gender-icon">👩</span>
+                        Women (>18)
+                    </div>
+                    <span class="achievement-badge overachieved">OVERACHIEVED</span>
+                </div>
+                <div class="stat-numbers">
+                    <div class="number-block">
+                        <div class="number-label">Achieved</div>
+                        <div class="number-value">115</div>
+                    </div>
+                    <div class="number-block">
+                        <div class="number-label">Target</div>
+                        <div class="number-value">100</div>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 115%"></div>
+                </div>
+                <div class="percentage">115%</div>
+                <div class="breakdown">
+                    <div class="breakdown-title">// Breakdown</div>
+                    <div class="breakdown-item">
+                        <span>Host Community:</span>
+                        <span>47</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Refugees:</span>
+                        <span>68</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Men Card -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">
+                        <span class="gender-icon">👨</span>
+                        Men (>18)
+                    </div>
+                    <span class="achievement-badge underachieved">UNDERACHIEVED</span>
+                </div>
+                <div class="stat-numbers">
+                    <div class="number-block">
+                        <div class="number-label">Achieved</div>
+                        <div class="number-value">5</div>
+                    </div>
+                    <div class="number-block">
+                        <div class="number-label">Target</div>
+                        <div class="number-value">20</div>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 25%"></div>
+                </div>
+                <div class="percentage">25%</div>
+                <div class="breakdown">
+                    <div class="breakdown-title">// Breakdown</div>
+                    <div class="breakdown-item">
+                        <span>Host Community:</span>
+                        <span>5</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Refugees:</span>
+                        <span>0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Girls Card -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">
+                        <span class="gender-icon">👧</span>
+                        Girls (<18)
+                    </div>
+                    <span class="achievement-badge overachieved">OVERACHIEVED</span>
+                </div>
+                <div class="stat-numbers">
+                    <div class="number-block">
+                        <div class="number-label">Achieved</div>
+                        <div class="number-value">103</div>
+                    </div>
+                    <div class="number-block">
+                        <div class="number-label">Target</div>
+                        <div class="number-value">100</div>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 103%"></div>
+                </div>
+                <div class="percentage">103%</div>
+                <div class="breakdown">
+                    <div class="breakdown-title">// Breakdown</div>
+                    <div class="breakdown-item">
+                        <span>Host Community:</span>
+                        <span>58</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Returnees:</span>
+                        <span>5</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Refugees:</span>
+                        <span>40</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Boys Card -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">
+                        <span class="gender-icon">👦</span>
+                        Boys (<18)
+                    </div>
+                    <span class="achievement-badge underachieved">UNDERACHIEVED</span>
+                </div>
+                <div class="stat-numbers">
+                    <div class="number-block">
+                        <div class="number-label">Achieved</div>
+                        <div class="number-value">97</div>
+                    </div>
+                    <div class="number-block">
+                        <div class="number-label">Target</div>
+                        <div class="number-value">100</div>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 97%"></div>
+                </div>
+                <div class="percentage">97%</div>
+                <div class="breakdown">
+                    <div class="breakdown-title">// Breakdown</div>
+                    <div class="breakdown-item">
+                        <span>Host Community:</span>
+                        <span>43</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Returnees:</span>
+                        <span>5</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Refugees:</span>
+                        <span>49</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visual Chart -->
+        <div class="chart-container">
+            <canvas id="achievementChart"></canvas>
+        </div>
+
+        <!-- Summary Section -->
+        <div class="summary-section">
+            <h2 class="summary-title">// EXECUTIVE SUMMARY</h2>
+            
+            <div class="total-reached">
+                <div class="total-number">320</div>
+                <div class="total-label">Total Beneficiaries Reached</div>
+            </div>
+
+            <div class="insights">
+                <div class="insight-title">📊 Key Insights</div>
+                <p class="insight-text">
+                    → <span class="highlight">Gender Disparity Observed:</span> Female beneficiaries significantly outperformed targets (Women: 115%, Girls: 103%) while male participation remained lower (Men: 25%, Boys: 97%).
+                </p>
+                <p class="insight-text">
+                    → <span class="highlight">Refugee Engagement:</span> Strong refugee participation across all categories except adult men, with 157 total refugees reached.
+                </p>
+                <p class="insight-text">
+                    → <span class="highlight">Unexpected Success:</span> Successfully included 10 returnees who were not in the original target, expanding our impact beyond initial scope.
+                </p>
+                <p class="insight-text">
+                    → <span class="highlight">Adult Male Gap:</span> Only 25% target achievement for adult men, attributed to work commitments and cultural factors limiting daytime participation.
+                </p>
+                <p class="insight-text">
+                    → <span class="highlight">Overall Performance:</span> Achieved 100% of total target (320/320), despite category-specific variations.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- GitHub Link -->
+    <a href="#" class="github-link" title="View on GitHub">
+        <span>{ }</span>
+    </a>
+
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        // Animated background code rain
+        function createCodeRain() {
+            const bgAnimation = document.getElementById('bgAnimation');
+            const codes = ['01', '10', '11', '00', '{}', '[]', '<>', '//', '**', '&&', '||', '!='];
+            
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const span = document.createElement('span');
+                    span.className = 'code-rain';
+                    span.textContent = codes[Math.floor(Math.random() * codes.length)];
+                    span.style.left = Math.random() * 100 + '%';
+                    span.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                    span.style.animationDelay = Math.random() * 2 + 's';
+                    bgAnimation.appendChild(span);
+                }, i * 100);
+            }
+        }
+
+        createCodeRain();
+
+        // Chart configuration
+        const ctx = document.getElementById('achievementChart').getContext('2d');
+        const achievementChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Women (>18)', 'Men (>18)', 'Girls (<18)', 'Boys (<18)'],
+                datasets: [{
+                    label: 'Achieved',
+                    data: [115, 5, 103, 97],
+                    backgroundColor: 'rgba(100, 255, 218, 0.6)',
+                    borderColor: 'rgba(100, 255, 218, 1)',
+                    borderWidth: 2
+                }, {
+                    label: 'Target',
+                    data: [100, 20, 100, 100],
+                    backgroundColor: 'rgba(189, 147, 249, 0.6)',
+                    borderColor: 'rgba(189, 147, 249, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#e0e6ed',
+                            font: {
+                                family: 'Courier New',
+                                size: 14
+                            }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Achievement vs Target Comparison',
+                        color: '#64ffda',
+                        font: {
+                            family: 'Courier New',
+                            size: 18
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#8892b0'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#8892b0'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Animate numbers on scroll
+        const animateValue = (element, start, end, duration) => {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                element.textContent = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        };
+
+        // Trigger animations when elements are visible
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const element = entry.target;
+                    if (element.classList.contains('number-value')) {
+                        const value = parseInt(element.textContent);
+                        animateValue(element, 0, value, 1000);
+                    }
+                }
+            });
+        });
+
+        document.querySelectorAll('.number-value').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Add typing effect to title
+        const title = document.querySelector('h1');
+        const originalText = title.textContent;
+        title.textContent = '';
+        let i = 0;
+
+        function typeWriter() {
+            if (i < originalText.length) {
+                title.textContent += originalText.charAt(i);
+                i++;
+                setTimeout(typeWriter, 50);
+            }
+        }
+
+        setTimeout(typeWriter, 500);
+    </script>
+</body>
+</html>
